@@ -1,0 +1,82 @@
+Assets def file
+    - 3 types
+
+Texture N P
+
+	N = name std::string
+	P = path std::string
+
+    example: Texture AAA path/to/imageAAA.png
+
+
+Animation N T F S
+
+	N = name
+	T = texture	std::string	- name define in Texture (see above)
+	F = frame count	int
+	S = speed	int	- number of game frames between animation frames
+
+
+Font N P
+
+	N = name	std::string
+	P = path
+
+	(- similar to Texture)
+
+
+Note: animations can be repeating or non-repeating
+
+
+---
+
+
+Entity position is center of its rect shape ! Same for bounding box !
+
+Entity must have CAnimation component
+	- to calculate center point
+
+
+---
+
+'P'     toggle pause game
+'T'     toggle drawing textures
+'C'     toggle drawing bounding boxes
+'G'     toggle drawing grid
+'ESC'   back
+
+
+
+---
+
+level specification
+
+tile type: 
+        "Tile"   = solid block
+        "Dec"    = decoration (no collisions)
+        "Player" = player spec
+
+Tile A GX GY
+
+    A  = associated animation (sprite)   std::string
+    GX = grid x     float
+    GY = grid y     float
+    
+Dec A X Y
+    ...
+    
+    
+Player GX GY CW CH SX SY SM GR B
+
+    GX, GY  = float, float  = start pos
+    CW, CH  = --//--        = bounding box size
+    SX      = float         = horiz speed
+    SY      = --//--        = vert speed
+    SM      = float         = max speed
+    GR      = float         = gravity
+    B       = std::string   = Bullet animation
+    
+    
+ 
+NOTE: grid blocks are 64x64 px
+

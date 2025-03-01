@@ -1,0 +1,17 @@
+Texture TexStanding gfx/standing.png
+Texture TexRunning gfx/running.png
+Texture TexJumping gfx/jumping.png
+Texture TexGround gfx/ground.png
+Texture TexBrick gfx/brick.png
+Texture TexBlock gfx/block.png
+Texture TexQuestion gfx/question.png
+Texture TexGrass gfx/grass.png
+Animation PlayerStanding TexStanding 1 0
+Animation PlayerRunning TexRunning 4 10
+Animation PlayerJumping TexJumping 1 0
+Animation Ground TexGround 1 0
+Animation Brick TexBrick 1 0
+Animation Block TexBlock 1 0
+Animation Question TexQuestion 8 8
+Animation Grass TexGrass 1 0
+Font MenuFont fonts/ZXDTPMA.ttf
