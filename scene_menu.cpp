@@ -16,11 +16,14 @@ void SceneMenu::init()
 {
     registerAction(static_cast<int>(sf::Keyboard::Scancode::Escape), "ENDAPP");
     registerAction(static_cast<int>(sf::Keyboard::Scancode::Num1), "STARTLEVEL1");
+    registerAction(static_cast<int>(sf::Keyboard::Scancode::Num2), "STARTLEVEL2");
     
     menuStrings.push_back("Title\n");
     menuStrings.push_back("Level 1\n");
+    menuStrings.push_back("Level 2\n");
     
     levelPaths.push_back("data/level1.txt");
+    levelPaths.push_back("data/level2.txt");
     
     menuText = std::make_shared<sf::Text>(this->engine->getAssets()->getFont("MenuFont"));
     menuText->setCharacterSize(48);
@@ -54,7 +57,13 @@ void SceneMenu::sDoAction(const Action& action)
         else
         if (action.name() == "STARTLEVEL1")
         {
-            this->engine->addScene("Play", std::make_shared<ScenePlay>(this->engine, levelPaths[menuIndex]));
+            this->engine->addScene("Play", std::make_shared<ScenePlay>(this->engine, levelPaths[0]));
+            this->engine->changeScene("Play");
+        }
+        else
+        if (action.name() == "STARTLEVEL2")
+        {
+            this->engine->addScene("Play", std::make_shared<ScenePlay>(this->engine, levelPaths[1]));
             this->engine->changeScene("Play");
         }
     }

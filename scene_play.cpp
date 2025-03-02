@@ -188,6 +188,7 @@ void ScenePlay::sAnimation()
 void ScenePlay::sMovement()
 {
     auto& trans = this->player->getComponent<CTransform>();
+    auto& bb = this->player->getComponent<CBoundingBox>();
 
     // store previous position
     trans.prevPos = trans.pos;
@@ -196,6 +197,9 @@ void ScenePlay::sMovement()
         trans.speed.y += playerCfg.gravity;
     
     trans.pos += trans.speed;
+    
+    if (trans.pos.x - bb.halfSize.x < 0)
+        trans.pos.x = bb.halfSize.x;
 }
 
 void ScenePlay::sEnemySpawner()
@@ -282,7 +286,7 @@ static void drawBB(sf::RenderWindow & window, const CTransform& trans, const CBo
 void ScenePlay::sRender()
 {
     auto w = this->engine->getWindow();
-    w->clear(sf::Color::Blue);
+    w->clear(sf::Color(92,148,252));
 
     for (auto e : this->manager->getEntities())
     {

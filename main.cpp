@@ -5,7 +5,7 @@
 
 int main()
 {
-    auto window = std::make_shared<sf::RenderWindow>(sf::VideoMode({800, 600}), "COMP4300 A3", sf::Style::Close, sf::State::Windowed);
+    auto window = std::make_shared<sf::RenderWindow>(sf::VideoMode({1280, 768}), "COMP4300 A3", sf::Style::Close, sf::State::Windowed);
     window->setFramerateLimit(60);
     window->setKeyRepeatEnabled(false);
 
