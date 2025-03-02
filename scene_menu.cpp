@@ -8,7 +8,7 @@ SceneMenu::SceneMenu(GameEngine* eng)
     : Scene(eng)
     , menuIndex(0)
 {
-    std::cout << "SCENE MENU: c'tor\n";
+    // std::cout << "SCENE MENU: c'tor\n";
     init();
 }
 
@@ -44,7 +44,7 @@ void SceneMenu::sRender()
 
 void SceneMenu::sDoAction(const Action& action)
 {
-    std::cout << "SCENE MENU: do action: " << action.name() << " (" << action.type() << ")\n";
+    // std::cout << "SCENE MENU: do action: " << action.name() << " (" << action.type() << ")\n";
     if (action.type() == "START")
     {
         if (action.name() == "ENDAPP")

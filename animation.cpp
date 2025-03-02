@@ -11,7 +11,7 @@ Animation::Animation(const std::string & n, sf::Texture & tex, int fcnt, int spd
     , frameCount(fcnt)
     , speed(spd)
 {
-    std::cout << "ANIMATION: c'tor: " << name << ", " << frameCount << ", " << speed << "\n";
+    // std::cout << "ANIMATION: c'tor: " << name << ", " << frameCount << ", " << speed << "\n";
     
     sprite = std::make_shared<sf::Sprite>(tex);
     

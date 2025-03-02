@@ -12,32 +12,35 @@ ScenePlay::ScenePlay(GameEngine* eng, const std::string & lvlP)
     : Scene(eng)
     , levelPath(lvlP)
 {
-    std::cout << "SCENE PLAY: c'tor\n";
-    std::cout << "Load level \"" << this->levelPath << "\"\n";
+    // std::cout << "SCENE PLAY: c'tor\n";
     init();
 }
 
 ScenePlay::~ScenePlay()
 {
-    std::cout << "SCENE PLAY: d'tor\n";
+    // std::cout << "SCENE PLAY: d'tor\n";
 }
 
 void ScenePlay::init()
 {
     // register actions
     registerAction(static_cast<int>(sf::Keyboard::Scancode::Escape), "RETURNTOMENU");
+    registerAction(static_cast<int>(sf::Keyboard::Scancode::P), "PAUSE");
+    
     registerAction(static_cast<int>(sf::Keyboard::Scancode::Left), "PLAYERLEFT");
     registerAction(static_cast<int>(sf::Keyboard::Scancode::Right), "PLAYERRIGHT");
     registerAction(static_cast<int>(sf::Keyboard::Scancode::Space), "PLAYERJUMP");
     registerAction(static_cast<int>(sf::Keyboard::Scancode::R), "PLAYERRESET");
+    
     registerAction(static_cast<int>(sf::Keyboard::Scancode::C), "TOGLEBB");
+    registerAction(static_cast<int>(sf::Keyboard::Scancode::T), "TOGLETEX");
 
     // load level + player cfg
     load_level();
 
     // create player
-    std::cout << "Add player...\n";
-    std::cout << "[" << playerCfg.gx << "," << playerCfg.gy << "]\n";
+    // std::cout << "Add player...\n";
+    // std::cout << "[" << playerCfg.gx << "," << playerCfg.gy << "]\n";
     this->player = manager->addEntity("Player");
     auto& a = this->player->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation("PlayerStanding"));
     auto& t = this->player->addComponent<CTransform>();
@@ -66,7 +69,7 @@ void ScenePlay::load_level()
         std::string line;
         while (std::getline(input, line))
         {
-            std::cout << "LINE: " << line << '\n';
+            // std::cout << "LINE: " << line << '\n';
 
             if (line[0] == '#')
                 continue;
@@ -123,15 +126,18 @@ void ScenePlay::load_level()
 
 void ScenePlay::update()
 {
-    this->manager->update();
-
-    sAnimation();
-    sMovement();
-    sEnemySpawner();
-    sCollision();
+    if (this->isPaused == false) 
+    {
+        this->manager->update();
+        sAnimation();
+        sMovement();
+        sEnemySpawner();
+        sCollision();
+    }
     sRender();
 
-    currentFrame++;
+    if (this->isPaused == false) 
+        currentFrame++;
 }
 
 void ScenePlay::sAnimation()
@@ -142,7 +148,7 @@ void ScenePlay::sAnimation()
         // in the air
         if (this->player->getComponent<CAnimation>().getAnimation()->getName() != "PlayerJumping")
         {
-            std::cout << ">>> A: jumping\n";
+            // std::cout << ">>> A: jumping\n";
             this->player->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation("PlayerJumping"));
         }
     }
@@ -156,7 +162,7 @@ void ScenePlay::sAnimation()
                 // not moving
                 if (this->player->getComponent<CAnimation>().getAnimation()->getName() != "PlayerStanding")
                 {
-                    std::cout << ">>> A: standing\n";
+                    // std::cout << ">>> A: standing\n";
                     this->player->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation("PlayerStanding"));
                 }
             }
@@ -165,7 +171,7 @@ void ScenePlay::sAnimation()
                 // moving
                 if (this->player->getComponent<CAnimation>().getAnimation()->getName() != "PlayerRunning")
                 {
-                    std::cout << ">>> A: running\n";
+                    // std::cout << ">>> A: running\n";
                     this->player->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation("PlayerRunning"));
                 }
             }
@@ -285,7 +291,10 @@ void ScenePlay::sRender()
 
         spr.setPosition({t.pos.x, t.pos.y});
         spr.setScale({t.scale.x, t.scale.y});
-        w->draw(spr);
+        if (this->isDrawingTex == true)
+        {
+            w->draw(spr);
+        }
 
         if (this->isDrawingBB)
         {
@@ -294,17 +303,20 @@ void ScenePlay::sRender()
         }
     }
 
-    // std::ostringstream ss;
-    // ss << "frame: " << currentFrame;
-    // frameText->setString(ss.str());
-    // w->draw(*frameText);
+    std::ostringstream ss;
+    ss << "frame: " << currentFrame;
+    frameText->setString(ss.str());
+    w->draw(*frameText);
 }
 
 void ScenePlay::sDoAction(const Action& action)
 {
-    std::cout << "SCENE PLAY: do action: " << action.name() << " (" << action.type() << ")\n";
-    std::cout << "waiting: " << waiting << "\n";
+    // std::cout << "SCENE PLAY: do action: " << action.name() << " (" << action.type() << ")\n";
+    // std::cout << "waiting: " << waiting << "\n";
 
+    if (action.name().starts_with("PLAYER") && this->isPaused == true)
+        return;
+    
     if (action.type() == "START")
     {
         if (action.name() == "RETURNTOMENU")
@@ -347,10 +359,20 @@ void ScenePlay::sDoAction(const Action& action)
             playerJumping = true;
         }
         else
+        if (action.name() == "PAUSE")
+        {
+            this->isPaused = !this->isPaused;
+        }
+        else
         if (action.name() == "PLAYERRESET")
         {
             this->player->getComponent<CTransform>().pos.x = playerCfg.gx * 64;
             this->player->getComponent<CTransform>().pos.y = this->engine->getWindow()->getSize().y - (playerCfg.gy * 64);
+        }
+        else
+        if (action.name() == "TOGLETEX")
+        {
+            this->isDrawingTex = !this->isDrawingTex;
         }
         else
         if (action.name() == "TOGLEBB")

@@ -6,7 +6,7 @@
 
 EntityManager::EntityManager()
 {
-    std::cout << "MANAGER: c'tor\n";
+    // std::cout << "MANAGER: c'tor\n";
 }
 
 std::shared_ptr<Entity> EntityManager::addEntity(const std::string & tag)

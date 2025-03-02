@@ -25,7 +25,7 @@ void GameEngine::init()
         std::string line;
         while (std::getline(input, line))
         {
-            std::cout << "LINE: " << line << '\n';
+            // std::cout << "LINE: " << line << '\n';
             
             if (line[0] == '#')
                 continue;
@@ -89,7 +89,7 @@ std::shared_ptr<Scene> GameEngine::currentScene()
 
 void GameEngine::changeScene(const std::string& sceneId)
 {
-    std::cout << "ENGINE: change scene: " << sceneId << "\n";
+    // std::cout << "ENGINE: change scene: " << sceneId << "\n";
     currentSceneId = sceneId;
 }
 
@@ -116,7 +116,7 @@ void GameEngine::update()
 
 void GameEngine::quit()
 {
-    std::cout << "ENGINE: quit\n";
+    // std::cout << "ENGINE: quit\n";
     running = false;
 }
 

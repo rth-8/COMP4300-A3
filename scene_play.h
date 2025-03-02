@@ -25,10 +25,13 @@ class ScenePlay : public Scene
     void load_level();
     
     bool isDrawingBB = false;
+    bool isDrawingTex = true;
     
     std::string waiting;
     
     bool playerJumping = false;
+    
+    bool isPaused = false;
     
 public:
     ScenePlay() = delete;

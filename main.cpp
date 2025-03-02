@@ -16,7 +16,7 @@ int main()
         engine->run();
     }
     
-    std::cout << "Closing window...\n";
+    // std::cout << "Closing window...\n";
     window->close();
     
     return 0;
