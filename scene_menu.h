@@ -2,6 +2,7 @@
 #define SCENE_MENU_H
 
 #include <vector>
+#include <SFML/Graphics/View.hpp>
 #include <SFML/Graphics/Text.hpp>
 
 #include "scene.h"
@@ -10,6 +11,8 @@ class Entity;
 
 class SceneMenu : public Scene
 {
+    sf::View view;
+    
     std::vector<std::string> menuStrings;
     std::shared_ptr<sf::Text> menuText;
     int menuIndex;

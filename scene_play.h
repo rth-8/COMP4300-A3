@@ -1,6 +1,7 @@
 #ifndef SCENE_PLAY_H
 #define SCENE_PLAY_H
 
+#include <SFML/Graphics/View.hpp>
 #include <SFML/Graphics/Text.hpp>
 
 #include "scene.h"
@@ -9,6 +10,8 @@ class Entity;
 
 class ScenePlay : public Scene
 {
+    sf::View view;
+    
     struct PlayerConfig
     {
         float gx, gy, cx, cy, speed, maxspeed, jump, gravity;
@@ -16,10 +19,10 @@ class ScenePlay : public Scene
     };
     
     std::string levelPath;
+    int levelW;
+    
     std::shared_ptr<Entity> player;
     PlayerConfig playerCfg;
-    
-    std::shared_ptr<sf::Text> frameText;
     
     void init();
     void load_level();

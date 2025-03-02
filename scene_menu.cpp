@@ -9,6 +9,7 @@ SceneMenu::SceneMenu(GameEngine* eng)
     , menuIndex(0)
 {
     // std::cout << "SCENE MENU: c'tor\n";
+    this->view = this->view = engine->getWindow()->getDefaultView();
     init();
 }
 
@@ -40,6 +41,8 @@ void SceneMenu::sRender()
 {
     auto w = this->engine->getWindow();
     w->clear(sf::Color::Green);
+    
+    w->setView(this->view);
     
     menuText->setString(menuStrings[0]);
     w->draw(*menuText);

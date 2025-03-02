@@ -13,6 +13,7 @@ ScenePlay::ScenePlay(GameEngine* eng, const std::string & lvlP)
     , levelPath(lvlP)
 {
     // std::cout << "SCENE PLAY: c'tor\n";
+    this->view = engine->getWindow()->getDefaultView();
     init();
 }
 
@@ -48,11 +49,6 @@ void ScenePlay::init()
     t.pos.y = this->engine->getWindow()->getSize().y - (playerCfg.gy * 64);
     this->player->addComponent<CInput>();
     this->player->addComponent<CBoundingBox>(a.getAnimation()->getSize());
-
-    frameText = std::make_shared<sf::Text>(this->engine->getAssets()->getFont("MenuFont"));
-    frameText->setCharacterSize(24);
-    frameText->setFillColor(sf::Color::White);
-    frameText->setPosition({10,10});
 }
 
 void ScenePlay::load_level()
@@ -61,6 +57,9 @@ void ScenePlay::load_level()
 
     int bottom = this->engine->getWindow()->getSize().y;
 
+    levelW = 0;
+    int maxCol = 0;
+    
     std::fstream input;
 
     input.open(this->levelPath, std::ios::in);
@@ -87,6 +86,10 @@ void ScenePlay::load_level()
                 if (token == "Tile")
                 {
                     ss >> sval1 >> ival1 >> ival2;
+                    
+                    if (ival1 > maxCol)
+                        maxCol = ival1;
+                    
                     auto e = manager->addEntity("Tile");
                     auto& a = e->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation(sval1));
                     auto& t = e->addComponent<CTransform>();
@@ -98,6 +101,10 @@ void ScenePlay::load_level()
                 if (token == "Dec")
                 {
                     ss >> sval1 >> ival1 >> ival2;
+                    
+                    if (ival1 > maxCol)
+                        maxCol = ival1;
+                    
                     auto e = manager->addEntity("Dec");
                     auto& a = e->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation(sval1));
                     auto& t = e->addComponent<CTransform>();
@@ -122,6 +129,10 @@ void ScenePlay::load_level()
 
         input.close();
     }
+    
+    // std::cout << "maxCol = " << maxCol << "\n";
+    levelW = 64 * (maxCol + 1);
+    // std::cout << "levelW = " << levelW << "\n";
 }
 
 void ScenePlay::update()
@@ -136,8 +147,11 @@ void ScenePlay::update()
     }
     sRender();
 
-    if (this->isPaused == false) 
+    if (this->isPaused == false)
+    {
         currentFrame++;
+        this->engine->getWindow()->setTitle(std::format("{}", currentFrame));
+    }
 }
 
 void ScenePlay::sAnimation()
@@ -288,6 +302,14 @@ void ScenePlay::sRender()
     auto w = this->engine->getWindow();
     w->clear(sf::Color(92,148,252));
 
+    auto& trans = this->player->getComponent<CTransform>();
+    if (trans.pos.x > 640 && trans.pos.x < (levelW-640))
+    {
+        this->view.setCenter(sf::Vector2f(trans.pos.x, this->view.getCenter().y));
+    }
+    
+    w->setView(this->view);
+
     for (auto e : this->manager->getEntities())
     {
         auto& spr = e->getComponent<CAnimation>().getAnimation()->getSprite();
@@ -306,11 +328,6 @@ void ScenePlay::sRender()
             drawBB(*w, t, e->getComponent<CBoundingBox>());
         }
     }
-
-    std::ostringstream ss;
-    ss << "frame: " << currentFrame;
-    frameText->setString(ss.str());
-    w->draw(*frameText);
 }
 
 void ScenePlay::sDoAction(const Action& action)
