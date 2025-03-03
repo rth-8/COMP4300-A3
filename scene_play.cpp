@@ -262,6 +262,12 @@ void ScenePlay::sCollision()
 
         if (ox > 0 && oy > 0)
         {
+            if (e->getComponent<CAnimation>().getAnimation()->getName() == "CollectibleCoin")
+            {
+                e->kill();
+                continue;
+            }
+            
             if (state == 1)
             {
                 // vertical
