@@ -259,6 +259,8 @@ void ScenePlay::sCollision()
         if (pox > 0 && poy <= 0) state = 1;
         else
         if (pox <= 0 && poy > 0) state = 2;
+        else
+        if (pox > 0 && poy > 0) state = 3;
 
         if (ox > 0 && oy > 0)
         {
@@ -314,7 +316,7 @@ void ScenePlay::sCollision()
                 }
             }
             else
-            if (state == 2)
+            if (state == 2 || state == 3)
             {
                 // horizontal
                 if (playerTrans.pos.x < eTrans.pos.x) playerTrans.pos.x -= ox;
