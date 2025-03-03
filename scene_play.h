@@ -34,7 +34,7 @@ class ScenePlay : public Scene
     
     std::string waiting;
     
-    bool playerJumping = false;
+    bool playerInAir = false;
     
     bool isPaused = false;
     

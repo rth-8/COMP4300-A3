@@ -170,7 +170,7 @@ void ScenePlay::sAnimation()
     }
     else
     {
-        if (playerJumping == false)
+        if (playerInAir == false)
         {
             if (this->player->getComponent<CInput>().left == false &&
                 this->player->getComponent<CInput>().right == false)
@@ -227,8 +227,12 @@ void ScenePlay::sMovement()
     
     trans.pos += trans.speed;
     
+    // prevent moving outside of level on left
     if (trans.pos.x - bb.halfSize.x < 0)
         trans.pos.x = bb.halfSize.x;
+    
+    if (trans.prevPos.y != trans.pos.y)
+        playerInAir = true;
 }
 
 void ScenePlay::sEnemySpawner()
@@ -266,7 +270,7 @@ void ScenePlay::sCollision()
                     // moving down
                     playerTrans.pos.y -= oy;
                     this->player->getComponent<CTransform>().speed.y = 0;
-                    playerJumping = false;
+                    playerInAir = false;
                 }
                 
                 if (playerTrans.pos.y > eTrans.pos.y)
@@ -420,9 +424,12 @@ void ScenePlay::sDoAction(const Action& action)
         else
         if (action.name() == "PLAYERJUMP")
         {
-            this->player->getComponent<CInput>().up = true;
-            this->player->getComponent<CTransform>().speed.y = playerCfg.jump;
-            playerJumping = true;
+            if (playerInAir == false)
+            {
+                this->player->getComponent<CInput>().up = true;
+                this->player->getComponent<CTransform>().speed.y = playerCfg.jump;
+                playerInAir = true;
+            }
         }
         else
         if (action.name() == "PAUSE")
