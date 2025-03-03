@@ -14,9 +14,8 @@ class SceneMenu : public Scene
     sf::View view;
     
     std::vector<std::string> menuStrings;
-    std::shared_ptr<sf::Text> menuText;
-    int menuIndex;
-    
+    std::vector<std::shared_ptr<sf::Text> > menuTexts;
+    size_t menuIndex;
     std::vector<std::string> levelPaths;
     
     void init();
