@@ -24,4 +24,12 @@ Tile Question 6 5
 Tile Brick 7 5
 Tile Brick 8 4
 Dec Cloud 3 10
+Tile Brick 11 7
+Tile Brick 12 7
+Tile Brick 13 7
+Tile Brick 14 7
+Tile Brick 15 7
+Dec CollectibleCoin 12 8
+Dec CollectibleCoin 13 8
+Dec CollectibleCoin 14 8
 Player 2 8 48 48 4 -20 20 0.75 Weapon1

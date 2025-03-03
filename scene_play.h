@@ -20,6 +20,8 @@ class ScenePlay : public Scene
     
     std::string levelPath;
     int levelW;
+    int windowW;
+    int windowW2;
     
     std::shared_ptr<Entity> player;
     PlayerConfig playerCfg;

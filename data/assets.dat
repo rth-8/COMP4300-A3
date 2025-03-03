@@ -26,4 +26,5 @@ Animation PipeTop TexPipeTop 1 0
 Animation PipeBot TexPipeBot 1 0
 Animation Explosion TexExplosion 8 5
 Animation Coin TexCoin 4 6
+Animation CollectibleCoin TexCoin 4 6
 Font MenuFont fonts/ZXDTPMA.ttf

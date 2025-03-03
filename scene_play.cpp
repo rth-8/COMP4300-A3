@@ -13,7 +13,9 @@ ScenePlay::ScenePlay(GameEngine* eng, const std::string & lvlP)
     , levelPath(lvlP)
 {
     // std::cout << "SCENE PLAY: c'tor\n";
-    this->view = engine->getWindow()->getDefaultView();
+    this->view = this->engine->getWindow()->getDefaultView();
+    this->windowW = this->engine->getWindow()->getSize().x;
+    this->windowW2 = this->engine->getWindow()->getSize().x / 2;
     init();
 }
 
@@ -346,7 +348,7 @@ void ScenePlay::sRender()
     w->clear(sf::Color(92,148,252));
 
     auto& trans = this->player->getComponent<CTransform>();
-    if (trans.pos.x > 640 && trans.pos.x < (levelW-640))
+    if (levelW > windowW && trans.pos.x > windowW2 && trans.pos.x < (levelW-windowW2))
     {
         this->view.setCenter(sf::Vector2f(trans.pos.x, this->view.getCenter().y));
     }
