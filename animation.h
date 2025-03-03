@@ -21,6 +21,7 @@ public:
     
     void update(int globalFrame);
     bool hasEnded();
+    void reset();
     std::string & getName();
     Vec2 & getSize();
     sf::Sprite & getSprite();

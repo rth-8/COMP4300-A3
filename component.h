@@ -16,6 +16,8 @@ class CAnimation : public CComponent
     Animation* animation;
 
 public:
+    int frame;
+    
     CAnimation();
     CAnimation(Animation* a);
     Animation* getAnimation();

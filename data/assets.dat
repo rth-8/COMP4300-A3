@@ -8,6 +8,10 @@ Texture TexBlock gfx/block.png
 Texture TexQuestion gfx/question.png
 Texture TexGrass gfx/grass.png
 Texture TexCloud gfx/cloud.png
+Texture TexPipeTop gfx/pipe_top.png
+Texture TexPipeBot gfx/pipe_bottom.png
+Texture TexExplosion gfx/explosion.png
+Texture TexCoin gfx/coin.png
 Animation PlayerStanding TexStanding 1 0
 Animation PlayerRunning TexRunning 4 10
 Animation PlayerJumping TexJumping 1 0
@@ -18,4 +22,8 @@ Animation Block TexBlock 1 0
 Animation Question TexQuestion 8 8
 Animation Grass TexGrass 1 0
 Animation Cloud TexCloud 1 0
+Animation PipeTop TexPipeTop 1 0
+Animation PipeBot TexPipeBot 1 0
+Animation Explosion TexExplosion 8 5
+Animation Coin TexCoin 4 6
 Font MenuFont fonts/ZXDTPMA.ttf

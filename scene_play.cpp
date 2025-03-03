@@ -195,7 +195,20 @@ void ScenePlay::sAnimation()
     // update Animation(s)
     for (auto e : this->manager->getEntities())
     {
-        e->getComponent<CAnimation>().getAnimation()->update(currentFrame);
+        auto& ac = e->getComponent<CAnimation>();
+        auto* anim = ac.getAnimation();
+        
+        if (anim->getName() == "Explosion" || anim->getName() == "Coin")
+        {
+            anim->update(ac.frame++);
+            if (anim->hasEnded())
+            {
+                e->kill();
+                anim->reset();
+            }            
+        }
+        else
+            anim->update(currentFrame);
     }
 }
 
@@ -245,8 +258,10 @@ void ScenePlay::sCollision()
         {
             if (state == 1)
             {
+                // vertical
                 if (playerTrans.pos.y < eTrans.pos.y)
                 {
+                    // moving down
                     playerTrans.pos.y -= oy;
                     this->player->getComponent<CTransform>().speed.y = 0;
                     playerJumping = false;
@@ -254,14 +269,42 @@ void ScenePlay::sCollision()
                 
                 if (playerTrans.pos.y > eTrans.pos.y)
                 {
+                    // moving up
                     playerTrans.pos.y += oy;
                     this->player->getComponent<CInput>().up = false;
                     this->player->getComponent<CTransform>().speed.y = 0;
+                    
+                    if (e->getComponent<CAnimation>().getAnimation()->getName() == "Brick")
+                    {
+                        // destroy brick
+                        e->kill();
+                        
+                        // spawn explosion at same position
+                        auto e = manager->addEntity("Dec");
+                        e->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation("Explosion"));
+                        auto& t = e->addComponent<CTransform>();
+                        t.pos.x = eTrans.pos.x;
+                        t.pos.y = eTrans.pos.y;
+                    }
+                    
+                    if (e->getComponent<CAnimation>().getAnimation()->getName() == "Question")
+                    {
+                        // question becomes block
+                        e->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation("Block"));
+                        
+                        // spawn coin above
+                        auto e = manager->addEntity("Dec");
+                        e->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation("Coin"));
+                        auto& t = e->addComponent<CTransform>();
+                        t.pos.x = eTrans.pos.x;
+                        t.pos.y = eTrans.pos.y - 64 - 4;
+                    }
                 }
             }
-
+            else
             if (state == 2)
             {
+                // horizontal
                 if (playerTrans.pos.x < eTrans.pos.x) playerTrans.pos.x -= ox;
                 if (playerTrans.pos.x > eTrans.pos.x) playerTrans.pos.x += ox;
             }

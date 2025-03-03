@@ -3,11 +3,11 @@
 
 /*-----------------------------------------------------------------------------------------------*/
 
-CAnimation::CAnimation()
+CAnimation::CAnimation() : frame(0)
 {
 }
 
-CAnimation::CAnimation(Animation* a) : animation(a)
+CAnimation::CAnimation(Animation* a) : animation(a), frame(0)
 {
 }
 

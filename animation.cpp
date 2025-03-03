@@ -29,13 +29,18 @@ void Animation::update(int globalFrame)
     if (globalFrame > 0 && speed > 0)
     {
         currentFrame = (globalFrame / speed) % frameCount;
-        sprite->setTextureRect(sf::IntRect({currentFrame * static_cast<int>(size.x), 0}, {static_cast<int>(size.x), static_cast<int>(size.y)}));
+        sprite->setTextureRect(sf::IntRect({currentFrame * static_cast<int>(size.x), 0}, {static_cast<int>(size.x), static_cast<int>(size.y)}));  
     }
 }
 
 bool Animation::hasEnded()
 {
-    return currentFrame > frameCount;
+    return (currentFrame == frameCount - 1); // animation reached last frame
+}
+
+void Animation::reset()
+{
+    currentFrame = 0;
 }
 
 std::string & Animation::getName()
