@@ -37,6 +37,7 @@ void ScenePlay::init()
     
     registerAction(static_cast<int>(sf::Keyboard::Scancode::C), "TOGLEBB");
     registerAction(static_cast<int>(sf::Keyboard::Scancode::T), "TOGLETEX");
+    registerAction(static_cast<int>(sf::Keyboard::Scancode::G), "TOGLEGRID");
 
     // load level + player cfg
     load_level();
@@ -51,6 +52,8 @@ void ScenePlay::init()
     t.pos.y = this->engine->getWindow()->getSize().y - (playerCfg.gy * 64);
     this->player->addComponent<CInput>();
     this->player->addComponent<CBoundingBox>(a.getAnimation()->getSize());
+    
+    create_grid();
 }
 
 void ScenePlay::load_level()
@@ -135,6 +138,52 @@ void ScenePlay::load_level()
     // std::cout << "maxCol = " << maxCol << "\n";
     levelW = 64 * (maxCol + 1);
     // std::cout << "levelW = " << levelW << "\n";
+}
+
+void ScenePlay::create_grid()
+{
+    std::cout << "Create grid texture.\n";
+    
+    if (this->gridTex.resize(sf::Vector2u(levelW,  this->engine->getWindow()->getSize().y)))
+    {
+        std::cout << "size: " << this->gridTex.getSize().x << " x " << this->gridTex.getSize().y << "\n";
+        
+        this->gridTex.clear(sf::Color::Transparent);
+        
+        int gw = levelW / 64;
+        int gh = this->engine->getWindow()->getSize().y / 64;
+        
+        std::cout << "grid: " << gw << " x " << gh << "\n";
+        
+        sf::Text coords(this->engine->getAssets()->getFont("MenuFont"));
+        coords.setCharacterSize(14);
+        coords.setFillColor(sf::Color::White);
+        
+        for (int r = 0; r < gh; ++r)
+        {
+            for (int c = 0; c < gw; ++c)
+            {
+                sf::RectangleShape rectangle({64.0f, 64.0f});
+                rectangle.setPosition(sf::Vector2f(c*64, r*64));
+                rectangle.setFillColor(sf::Color(0, 0, 0, 0));
+                rectangle.setOutlineThickness(-1);
+                rectangle.setOutlineColor(sf::Color(255, 255, 255, 255));
+                this->gridTex.draw(rectangle);
+                
+                std::ostringstream ss;
+                ss << "(" << c << "," << (gh-r-1) << ")";
+                coords.setString(ss.str());
+                coords.setPosition(sf::Vector2f(c*64 + 2, r*64 + 62 - 14));
+                this->gridTex.draw(coords);
+            }
+        }
+        
+        this->gridTex.display();
+        
+        this->gridSprite = std::make_shared<sf::Sprite>(this->gridTex.getTexture());
+    }
+    else
+        std::cout << "Failed to resize grid texture!\n";
 }
 
 void ScenePlay::update()
@@ -385,6 +434,11 @@ void ScenePlay::sRender()
             drawBB(*w, t, e->getComponent<CBoundingBox>());
         }
     }
+    
+    if (this->isDrawingGrid)
+    {
+        w->draw(*this->gridSprite);
+    }
 }
 
 void ScenePlay::sDoAction(const Action& action)
@@ -459,6 +513,11 @@ void ScenePlay::sDoAction(const Action& action)
         if (action.name() == "TOGLEBB")
         {
             this->isDrawingBB = !this->isDrawingBB;
+        }
+        else
+        if (action.name() == "TOGLEGRID")
+        {
+            this->isDrawingGrid = !this->isDrawingGrid;
         }
     }
     else

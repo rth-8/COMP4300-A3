@@ -1,6 +1,7 @@
 #ifndef SCENE_PLAY_H
 #define SCENE_PLAY_H
 
+#include <SFML/Graphics.hpp>
 #include <SFML/Graphics/View.hpp>
 #include <SFML/Graphics/Text.hpp>
 
@@ -29,8 +30,13 @@ class ScenePlay : public Scene
     void init();
     void load_level();
     
+    sf::RenderTexture gridTex;
+    std::shared_ptr<sf::Sprite> gridSprite;
+    void create_grid();
+    
     bool isDrawingBB = false;
     bool isDrawingTex = true;
+    bool isDrawingGrid = false;
     
     std::string waiting;
     
