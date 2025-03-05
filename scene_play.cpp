@@ -33,6 +33,7 @@ void ScenePlay::init()
     registerAction(static_cast<int>(sf::Keyboard::Scancode::Left), "PLAYERLEFT");
     registerAction(static_cast<int>(sf::Keyboard::Scancode::Right), "PLAYERRIGHT");
     registerAction(static_cast<int>(sf::Keyboard::Scancode::Space), "PLAYERJUMP");
+    registerAction(static_cast<int>(sf::Keyboard::Scancode::X), "PLAYERSHOT");
     registerAction(static_cast<int>(sf::Keyboard::Scancode::R), "PLAYERRESET");
     
     registerAction(static_cast<int>(sf::Keyboard::Scancode::C), "TOGLEBB");
@@ -201,7 +202,10 @@ void ScenePlay::update()
     if (this->isPaused == false)
     {
         currentFrame++;
-        this->engine->getWindow()->setTitle(std::format("{}", currentFrame));
+        this->engine->getWindow()->setTitle(std::format("{}, {}", 
+            this->manager->getEntities("Shot").size(),
+            currentFrame)
+            );
     }
 }
 
@@ -282,6 +286,16 @@ void ScenePlay::sMovement()
     
     if (trans.prevPos.y != trans.pos.y)
         playerInAir = true;
+    
+    for (auto& shot : this->manager->getEntities("Shot"))
+    {
+        auto& shotTrans = shot->getComponent<CTransform>();
+        shotTrans.pos += shotTrans.speed;
+        
+        sf::Vector2f vc = this->view.getCenter();
+        if (shotTrans.pos.x < vc.x - windowW2 || shotTrans.pos.x > vc.x + windowW2)
+            shot->kill();
+    }
 }
 
 void ScenePlay::sEnemySpawner()
@@ -295,6 +309,8 @@ void ScenePlay::sCollision()
 
     for (auto e : this->manager->getEntities("Tile"))
     {
+        // 1: check & resolve collisions with player
+        
         auto& eTrans = e->getComponent<CTransform>();
         auto& eBB = e->getComponent<CBoundingBox>();
 
@@ -313,6 +329,7 @@ void ScenePlay::sCollision()
 
         if (ox > 0 && oy > 0)
         {
+            // pick collection coin
             if (e->getComponent<CAnimation>().getAnimation()->getName() == "CollectibleCoin")
             {
                 e->kill();
@@ -370,6 +387,31 @@ void ScenePlay::sCollision()
                 // horizontal
                 if (playerTrans.pos.x < eTrans.pos.x) playerTrans.pos.x -= ox;
                 if (playerTrans.pos.x > eTrans.pos.x) playerTrans.pos.x += ox;
+            }
+        }
+        
+        // 2: check & resolve collisions with shots
+        for (auto& shot : this->manager->getEntities("Shot"))
+        {
+            auto& shotTrans = shot->getComponent<CTransform>();
+
+            if (shotTrans.pos.x > eTrans.pos.x - eBB.halfSize.x && shotTrans.pos.x < eTrans.pos.x + eBB.halfSize.x &&
+                shotTrans.pos.y > eTrans.pos.y - eBB.halfSize.y && shotTrans.pos.y < eTrans.pos.y + eBB.halfSize.y)
+            {
+                shot->kill();
+                
+                if (e->getComponent<CAnimation>().getAnimation()->getName() == "Brick")
+                {
+                    // destroy brick
+                    e->kill();
+                    
+                    // spawn explosion at same position
+                    auto e = manager->addEntity("Dec");
+                    e->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation("Explosion"));
+                    auto& t = e->addComponent<CTransform>();
+                    t.pos.x = eTrans.pos.x;
+                    t.pos.y = eTrans.pos.y;
+                }
             }
         }
     }
@@ -518,6 +560,27 @@ void ScenePlay::sDoAction(const Action& action)
         if (action.name() == "TOGLEGRID")
         {
             this->isDrawingGrid = !this->isDrawingGrid;
+        }
+        else
+        if (action.name() == "PLAYERSHOT")
+        {
+            auto& playerTrans = this->player->getComponent<CTransform>();
+            
+            auto e = manager->addEntity("Shot");
+            e->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation(playerCfg.weapon));
+            auto& t = e->addComponent<CTransform>();
+            if (playerTrans.scale.x < 0)
+            {
+                t.pos.x = playerTrans.pos.x - 32;
+                t.speed.x = playerCfg.speed * -3;
+            }
+            else
+            {
+                t.pos.x = playerTrans.pos.x + 32;
+                t.speed.x = playerCfg.speed * 3;
+            }
+            t.pos.y = playerTrans.pos.y;
+            
         }
     }
     else

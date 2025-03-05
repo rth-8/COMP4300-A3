@@ -12,6 +12,7 @@ Texture TexPipeTop gfx/pipe_top.png
 Texture TexPipeBot gfx/pipe_bottom.png
 Texture TexExplosion gfx/explosion.png
 Texture TexCoin gfx/coin.png
+Texture TexShot gfx/shot.png
 Animation PlayerStanding TexStanding 1 0
 Animation PlayerRunning TexRunning 4 10
 Animation PlayerJumping TexJumping 1 0
@@ -27,4 +28,5 @@ Animation PipeBot TexPipeBot 1 0
 Animation Explosion TexExplosion 8 5
 Animation Coin TexCoin 4 6
 Animation CollectibleCoin TexCoin 4 6
+Animation Weapon1 TexShot 1 0
 Font MenuFont fonts/ZXDTPMA.ttf
