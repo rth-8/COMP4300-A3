@@ -16,6 +16,8 @@ ScenePlay::ScenePlay(GameEngine* eng, const std::string & lvlP)
     this->view = this->engine->getWindow()->getDefaultView();
     this->windowW = this->engine->getWindow()->getSize().x;
     this->windowW2 = this->engine->getWindow()->getSize().x / 2;
+    this->windowH = this->engine->getWindow()->getSize().y;
+    this->windowH2 = this->engine->getWindow()->getSize().y / 2;
     init();
 }
 
@@ -269,6 +271,8 @@ void ScenePlay::sAnimation()
 
 void ScenePlay::sMovement()
 {
+    sf::Vector2f vc = this->view.getCenter();
+    
     auto& trans = this->player->getComponent<CTransform>();
     auto& bb = this->player->getComponent<CBoundingBox>();
 
@@ -287,14 +291,25 @@ void ScenePlay::sMovement()
     if (trans.prevPos.y != trans.pos.y)
         playerInAir = true;
     
+    
     for (auto& shot : this->manager->getEntities("Shot"))
     {
         auto& shotTrans = shot->getComponent<CTransform>();
         shotTrans.pos += shotTrans.speed;
         
-        sf::Vector2f vc = this->view.getCenter();
         if (shotTrans.pos.x < vc.x - windowW2 || shotTrans.pos.x > vc.x + windowW2)
             shot->kill();
+    }
+    
+    // player goes out of bottom bound
+    if (trans.pos.y > vc.y + windowH2 + bb.halfSize.y)
+    {
+        // resest players position to default
+        trans.pos.x = playerCfg.gx * 64;
+        trans.pos.y = windowH - (playerCfg.gy * 64);
+        
+        // reset view
+        this->view.setCenter(sf::Vector2f(windowW2, windowH2));
     }
 }
 

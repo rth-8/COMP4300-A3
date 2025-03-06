@@ -22,7 +22,9 @@ class ScenePlay : public Scene
     std::string levelPath;
     int levelW;
     int windowW;
+    int windowH;
     int windowW2;
+    int windowH2;
     
     std::shared_ptr<Entity> player;
     PlayerConfig playerCfg;
