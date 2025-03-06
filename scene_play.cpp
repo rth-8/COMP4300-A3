@@ -158,8 +158,8 @@ void ScenePlay::create_grid()
         
         std::cout << "grid: " << gw << " x " << gh << "\n";
         
-        sf::Text coords(this->engine->getAssets()->getFont("MenuFont"));
-        coords.setCharacterSize(14);
+        sf::Text coords(this->engine->getAssets()->getFont("GridFont"));
+        coords.setCharacterSize(12);
         coords.setFillColor(sf::Color::White);
         
         for (int r = 0; r < gh; ++r)
@@ -176,7 +176,7 @@ void ScenePlay::create_grid()
                 std::ostringstream ss;
                 ss << "(" << c << "," << (gh-r-1) << ")";
                 coords.setString(ss.str());
-                coords.setPosition(sf::Vector2f(c*64 + 2, r*64 + 62 - 14));
+                coords.setPosition(sf::Vector2f(c*64 + 2, r*64 + 2));
                 this->gridTex.draw(coords);
             }
         }

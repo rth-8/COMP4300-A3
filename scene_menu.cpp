@@ -31,21 +31,19 @@ void SceneMenu::init()
     levelPaths.push_back("data/level1.txt");
     levelPaths.push_back("data/level2.txt");
     
-    std::vector<float> sizes{56, 48, 48};
-    float y = 20.0f;
+    auto& font = this->engine->getAssets()->getFont("MenuFont");
+    std::vector<float> sizes{80, 48, 48};
+    float y = 40.0f;
     
     menuTexts.resize(menuStrings.size());
     for (std::size_t i{}; i < menuStrings.size(); ++i)
     {
-        menuTexts[i] = std::make_shared<sf::Text>(this->engine->getAssets()->getFont("MenuFont"));
+        menuTexts[i] = std::make_shared<sf::Text>(font);
         menuTexts[i]->setString(menuStrings[i]); 
         menuTexts[i]->setCharacterSize(sizes[i]);
         menuTexts[i]->setFillColor(sf::Color::Black);
-        // menuTexts[i]->setOutlineColor(sf::Color::Black);
-        // menuTexts[i]->setOutlineThickness(2.0f);
-        menuTexts[i]->setPosition({20.0f, y});
-        
-        y += sizes[i];
+        menuTexts[i]->setPosition(sf::Vector2f(20.0f, y));
+        y += menuTexts[i]->getGlobalBounds().size.y;
     }
     menuTexts[menuIndex+1]->setFillColor(sf::Color::Yellow);
 }
