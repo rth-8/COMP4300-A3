@@ -57,6 +57,12 @@ void GameEngine::init()
                     ss >> sval1 >> sval2;
                     assets->addFont(sval1, sval2);
                 }
+                else
+                if (token == "Sound")
+                {
+                    ss >> sval1 >> sval2;
+                    assets->addSound(sval1, sval2);
+                }
             }
         }
         

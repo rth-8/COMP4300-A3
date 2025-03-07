@@ -411,7 +411,8 @@ void ScenePlay::sCollision()
             // pick collection coin and do not resolve this collision for player
             if (e->getComponent<CAnimation>().getAnimation()->getName() == "CollectibleCoin")
             {
-                e->kill();
+                this->engine->getAssets()->getSound("PickSound").play();
+                e->kill();                
                 continue;
             }
             
@@ -428,6 +429,8 @@ void ScenePlay::sCollision()
             // player hits something above
             if (cVec.y > 0)
             {
+                this->engine->getAssets()->getSound("HitSound").play();
+                
                 this->player->getComponent<CInput>().up = false;
                 this->player->getComponent<CTransform>().speed.y = 0;
                 
@@ -455,6 +458,8 @@ void ScenePlay::sCollision()
                     auto& t = coin->addComponent<CTransform>();
                     t.pos.x = eTrans.pos.x;
                     t.pos.y = eTrans.pos.y - 64 - 4;
+                    
+                    this->engine->getAssets()->getSound("PickSound").play();
                 }
             }
         }
@@ -623,6 +628,8 @@ void ScenePlay::sDoAction(const Action& action)
                 this->player->getComponent<CInput>().up = true;
                 this->player->getComponent<CTransform>().speed.y = playerCfg.jump;
                 playerInAir = true;
+                
+                this->engine->getAssets()->getSound("JumpSound").play();
             }
         }
         else
@@ -671,6 +678,7 @@ void ScenePlay::sDoAction(const Action& action)
             }
             t.pos.y = playerTrans.pos.y;
             
+            this->engine->getAssets()->getSound("ShootSound").play();
         }
     }
     else

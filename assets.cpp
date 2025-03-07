@@ -27,9 +27,13 @@ void Assets::addFont(const std::string& name, const std::string& path)
     this->fonts.emplace(std::make_pair(name, sf::Font(path)));
 }
 
-// void Assets::addSound(const std::string& name, const std::string& path)
-// {    
-// }
+void Assets::addSound(const std::string& name, const std::string& path)
+{
+    // std::cout << "ASSETS: add sound: " << name << " ( " << path << " )\n";
+    this->soundBuffers.emplace(std::make_pair(name, sf::SoundBuffer(path)));
+    this->sounds.emplace(std::make_pair(name, sf::Sound(this->soundBuffers.at(name))));
+    this->sounds.at(name).setVolume(50.0f);
+}
 
 /*-----------------------------------------------------------------------------------------------*/
 
@@ -49,7 +53,7 @@ sf::Font & Assets::getFont(const std::string& name)
     return this->fonts.at(name);
 }
 
-// sf::Sound & Assets::getSound(const std::string& name)
-// {
-    // return this->sounds.at(name);
-// }
+sf::Sound & Assets::getSound(const std::string& name)
+{
+    return this->sounds.at(name);
+}

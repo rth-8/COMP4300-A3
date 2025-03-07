@@ -31,3 +31,7 @@ Animation CollectibleCoin TexCoin 4 7
 Animation Weapon1 TexShot 1 0
 Font MenuFont fonts/menu_font.ttf
 Font GridFont fonts/grid_font.ttf
+Sound JumpSound sounds/jump.wav
+Sound HitSound sounds/hit.wav
+Sound PickSound sounds/pick.wav
+Sound ShootSound sounds/shoot.wav
