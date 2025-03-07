@@ -60,6 +60,8 @@ public:
 
 class CGravity : public CComponent
 {
+public:
+    float gravity;
 };
 
 class CState : public CComponent

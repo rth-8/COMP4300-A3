@@ -26,6 +26,8 @@ public:
     EntityVector & getEntities(const std::string & tag);
     
     void update();
+    
+    void printEntities();
 };
 
 #endif

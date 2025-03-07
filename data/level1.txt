@@ -32,4 +32,12 @@ Tile Brick 15 7
 Tile CollectibleCoin 12 8
 Tile CollectibleCoin 13 8
 Tile CollectibleCoin 14 8
+Tile Ground 12 0
+Tile Ground 13 0
+Tile Ground 14 0
+Tile Ground 15 0
+Tile Brick 12 5
+Tile Brick 13 5
+Tile Brick 14 5
+Tile Brick 15 5
 Player 2 8 48 48 4 -20 20 0.75 Weapon1

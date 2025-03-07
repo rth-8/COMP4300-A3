@@ -63,3 +63,21 @@ void EntityManager::update()
     }
     this->toBeAdded.clear();
 }
+
+void EntityManager::printEntities()
+{
+    for (auto e : this->getEntities())
+    {
+        std::cout 
+            << e->getTag() << "\t"
+            << e->hasComponent<CAnimation>() << "\t"
+            << e->hasComponent<CTransform>() << "\t"
+            << e->hasComponent<CBoundingBox>() << "\t"
+            << e->hasComponent<CLifeSpan>() << "\t"
+            << e->hasComponent<CInput>() << "\t"
+            << e->hasComponent<CGravity>() << "\t"
+            << e->hasComponent<CState>() << "\t"
+            << "\n";
+    }
+    std::cout << std::endl;
+}

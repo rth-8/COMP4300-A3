@@ -55,8 +55,22 @@ void ScenePlay::init()
     t.pos.y = this->engine->getWindow()->getSize().y - (playerCfg.gy * 64);
     this->player->addComponent<CInput>();
     this->player->addComponent<CBoundingBox>(a.getAnimation()->getSize());
-    
+    auto& g = this->player->addComponent<CGravity>();
+    g.gravity = playerCfg.gravity;
+                    
     create_grid();
+    
+    this->manager->update();
+    for (auto e : this->manager->getEntities())
+    {
+        if (e->getComponent<CAnimation>().getAnimation()->getName() == "CollectibleCoin")
+        {
+            auto& g = e->addComponent<CGravity>();
+            g.gravity = playerCfg.gravity;
+        }
+    }
+    
+    // this->manager->printEntities();
 }
 
 void ScenePlay::load_level()
@@ -213,47 +227,50 @@ void ScenePlay::update()
 
 void ScenePlay::sAnimation()
 {
-    auto& playerTrans = this->player->getComponent<CTransform>();
-    if (playerTrans.pos.y != playerTrans.prevPos.y)
-    {
-        // in the air
-        if (this->player->getComponent<CAnimation>().getAnimation()->getName() != "PlayerJumping")
-        {
-            // std::cout << ">>> A: jumping\n";
-            this->player->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation("PlayerJumping"));
-        }
-    }
-    else
-    {
-        if (playerInAir == false)
-        {
-            if (this->player->getComponent<CInput>().left == false &&
-                this->player->getComponent<CInput>().right == false)
-            {
-                // not moving
-                if (this->player->getComponent<CAnimation>().getAnimation()->getName() != "PlayerStanding")
-                {
-                    // std::cout << ">>> A: standing\n";
-                    this->player->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation("PlayerStanding"));
-                }
-            }
-            else
-            {
-                // moving
-                if (this->player->getComponent<CAnimation>().getAnimation()->getName() != "PlayerRunning")
-                {
-                    // std::cout << ">>> A: running\n";
-                    this->player->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation("PlayerRunning"));
-                }
-            }
-        }
-    }
-
-    // update Animation(s)
+    // update animations
     for (auto e : this->manager->getEntities())
     {
         auto& ac = e->getComponent<CAnimation>();
         auto* anim = ac.getAnimation();
+        
+        if (e->getTag() == "Player")
+        {
+            auto& playerTrans = this->player->getComponent<CTransform>();
+            if (playerTrans.pos.y != playerTrans.prevPos.y)
+            {
+                // in the air
+                if (this->player->getComponent<CAnimation>().getAnimation()->getName() != "PlayerJumping")
+                {
+                    // std::cout << ">>> A: jumping\n";
+                    this->player->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation("PlayerJumping"));
+                }
+            }
+            else
+            {
+                if (playerInAir == false)
+                {
+                    if (this->player->getComponent<CInput>().left == false &&
+                        this->player->getComponent<CInput>().right == false)
+                    {
+                        // not moving
+                        if (this->player->getComponent<CAnimation>().getAnimation()->getName() != "PlayerStanding")
+                        {
+                            // std::cout << ">>> A: standing\n";
+                            this->player->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation("PlayerStanding"));
+                        }
+                    }
+                    else
+                    {
+                        // moving
+                        if (this->player->getComponent<CAnimation>().getAnimation()->getName() != "PlayerRunning")
+                        {
+                            // std::cout << ">>> A: running\n";
+                            this->player->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation("PlayerRunning"));
+                        }
+                    }
+                }
+            }
+        }
         
         if (anim->getName() == "Explosion" || anim->getName() == "Coin")
         {
@@ -273,135 +290,172 @@ void ScenePlay::sMovement()
 {
     sf::Vector2f vc = this->view.getCenter();
     
-    auto& trans = this->player->getComponent<CTransform>();
-    auto& bb = this->player->getComponent<CBoundingBox>();
-
-    // store previous position
-    trans.prevPos = trans.pos;
-
-    if (trans.speed.y < playerCfg.maxspeed)
-        trans.speed.y += playerCfg.gravity;
-    
-    trans.pos += trans.speed;
-    
-    // prevent moving outside of level on left
-    if (trans.pos.x - bb.halfSize.x < 0)
-        trans.pos.x = bb.halfSize.x;
-    
-    if (trans.prevPos.y != trans.pos.y)
-        playerInAir = true;
-    
-    
-    for (auto& shot : this->manager->getEntities("Shot"))
+    for (auto e : this->manager->getEntities())
     {
-        auto& shotTrans = shot->getComponent<CTransform>();
-        shotTrans.pos += shotTrans.speed;
+        if (e->isAlive() == false)
+            continue;
         
-        if (shotTrans.pos.x < vc.x - windowW2 || shotTrans.pos.x > vc.x + windowW2)
-            shot->kill();
-    }
-    
-    // player goes out of bottom bound
-    if (trans.pos.y > vc.y + windowH2 + bb.halfSize.y)
-    {
-        // resest players position to default
-        trans.pos.x = playerCfg.gx * 64;
-        trans.pos.y = windowH - (playerCfg.gy * 64);
+        auto& trans = e->getComponent<CTransform>();
+        auto& bb = e->getComponent<CBoundingBox>();
         
-        // reset view
-        this->view.setCenter(sf::Vector2f(windowW2, windowH2));
-    }
+        // store previous position
+        trans.prevPos = trans.pos;
+        
+        // apply gravity
+        if (e->hasComponent<CGravity>())
+        {
+            if (trans.speed.y < playerCfg.maxspeed)
+                trans.speed.y += e->getComponent<CGravity>().gravity;
+        }
+        
+        // apply speed
+        trans.pos += trans.speed;
+        
+        // shot specifics
+        if (e->getTag() == "Shot")
+        {
+            if (trans.pos.x < vc.x - windowW2 || trans.pos.x > vc.x + windowW2)
+                e->kill();
+        }
+        
+        // player specifics 
+        if (e->getTag() == "Player")
+        {
+            // prevent moving outside of level on left
+            if (trans.pos.x - bb.halfSize.x < 0)
+                trans.pos.x = bb.halfSize.x;
+            
+            if (trans.prevPos.y != trans.pos.y)
+                playerInAir = true;
+            
+            // player goes out of bottom bound
+            if (trans.pos.y > vc.y + windowH2 + bb.halfSize.y)
+            {
+                // resest players position to default
+                trans.pos.x = playerCfg.gx * 64;
+                trans.pos.y = windowH - (playerCfg.gy * 64);
+                
+                // reset view
+                this->view.setCenter(sf::Vector2f(windowW2, windowH2));
+            }
+        }
+    }    
 }
 
 void ScenePlay::sEnemySpawner()
 {
 }
 
+static bool checkCollision(std::shared_ptr<Entity> moving, std::shared_ptr<Entity> still, Vec2& vec)
+{
+    auto& movingTrans = moving->getComponent<CTransform>();
+    auto& movingBB = moving->getComponent<CBoundingBox>();
+    
+    auto& stillTrans = still->getComponent<CTransform>();
+    auto& stillBB = still->getComponent<CBoundingBox>();
+    
+    float pox = movingBB.halfSize.x + stillBB.halfSize.x - abs(movingTrans.prevPos.x - stillTrans.pos.x);
+    float poy = movingBB.halfSize.y + stillBB.halfSize.y - abs(movingTrans.prevPos.y - stillTrans.pos.y);
+
+    float ox = movingBB.halfSize.x + stillBB.halfSize.x - abs(movingTrans.pos.x - stillTrans.pos.x);
+    float oy = movingBB.halfSize.y + stillBB.halfSize.y - abs(movingTrans.pos.y - stillTrans.pos.y);
+
+    short state = 0;
+    if (pox > 0 && poy <= 0) state = 1;
+    else
+    if (pox <= 0 && poy > 0) state = 2;
+    else
+    if (pox > 0 && poy > 0) state = 3;
+
+    if (ox > 0 && oy > 0)
+    {        
+        if (state == 1)
+        {
+            // vertical            
+            if (movingTrans.pos.y < stillTrans.pos.y) vec.y = -oy;
+            if (movingTrans.pos.y > stillTrans.pos.y) vec.y = oy;
+        }
+        else
+        if (state == 2 || state == 3)
+        {
+            // horizontal
+            if (movingTrans.pos.x < stillTrans.pos.x) vec.x = -ox;
+            if (movingTrans.pos.x > stillTrans.pos.x) vec.x = ox;
+        }
+        
+        return true;
+    }
+    
+    return false;
+}
+
 void ScenePlay::sCollision()
 {
-    auto& playerTrans = this->player->getComponent<CTransform>();
-    auto& playerBB = this->player->getComponent<CBoundingBox>();
-
+    Vec2 cVec;
+    
     for (auto e : this->manager->getEntities("Tile"))
     {
-        // 1: check & resolve collisions with player
+        if (e->isAlive() == false)
+            continue;
         
         auto& eTrans = e->getComponent<CTransform>();
         auto& eBB = e->getComponent<CBoundingBox>();
+    
+        // 1: check & resolve collisions with player
 
-        float pox = playerBB.halfSize.x + eBB.halfSize.x - abs(playerTrans.prevPos.x - eTrans.pos.x);
-        float poy = playerBB.halfSize.y + eBB.halfSize.y - abs(playerTrans.prevPos.y - eTrans.pos.y);
-
-        float ox = playerBB.halfSize.x + eBB.halfSize.x - abs(playerTrans.pos.x - eTrans.pos.x);
-        float oy = playerBB.halfSize.y + eBB.halfSize.y - abs(playerTrans.pos.y - eTrans.pos.y);
-
-        short state = 0;
-        if (pox > 0 && poy <= 0) state = 1;
-        else
-        if (pox <= 0 && poy > 0) state = 2;
-        else
-        if (pox > 0 && poy > 0) state = 3;
-
-        if (ox > 0 && oy > 0)
+        cVec.x = 0;
+        cVec.y = 0;
+        
+        if (checkCollision(this->player, e, cVec))
         {
-            // pick collection coin
+            // pick collection coin and do not resolve this collision for player
             if (e->getComponent<CAnimation>().getAnimation()->getName() == "CollectibleCoin")
             {
                 e->kill();
                 continue;
             }
             
-            if (state == 1)
+            // resolve collision for player entity
+            this->player->getComponent<CTransform>().pos += cVec;
+            
+            // player hits the ground
+            if (cVec.y < 0)
             {
-                // vertical
-                if (playerTrans.pos.y < eTrans.pos.y)
-                {
-                    // moving down
-                    playerTrans.pos.y -= oy;
-                    this->player->getComponent<CTransform>().speed.y = 0;
-                    playerInAir = false;
-                }
-                
-                if (playerTrans.pos.y > eTrans.pos.y)
-                {
-                    // moving up
-                    playerTrans.pos.y += oy;
-                    this->player->getComponent<CInput>().up = false;
-                    this->player->getComponent<CTransform>().speed.y = 0;
-                    
-                    if (e->getComponent<CAnimation>().getAnimation()->getName() == "Brick")
-                    {
-                        // destroy brick
-                        e->kill();
-                        
-                        // spawn explosion at same position
-                        auto e = manager->addEntity("Dec");
-                        e->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation("Explosion"));
-                        auto& t = e->addComponent<CTransform>();
-                        t.pos.x = eTrans.pos.x;
-                        t.pos.y = eTrans.pos.y;
-                    }
-                    
-                    if (e->getComponent<CAnimation>().getAnimation()->getName() == "Question")
-                    {
-                        // question becomes block
-                        e->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation("Block"));
-                        
-                        // spawn coin above
-                        auto e = manager->addEntity("Dec");
-                        e->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation("Coin"));
-                        auto& t = e->addComponent<CTransform>();
-                        t.pos.x = eTrans.pos.x;
-                        t.pos.y = eTrans.pos.y - 64 - 4;
-                    }
-                }
+                this->player->getComponent<CTransform>().speed.y = 0;
+                playerInAir = false;
             }
             else
-            if (state == 2 || state == 3)
+            // player hits something above
+            if (cVec.y > 0)
             {
-                // horizontal
-                if (playerTrans.pos.x < eTrans.pos.x) playerTrans.pos.x -= ox;
-                if (playerTrans.pos.x > eTrans.pos.x) playerTrans.pos.x += ox;
+                this->player->getComponent<CInput>().up = false;
+                this->player->getComponent<CTransform>().speed.y = 0;
+                
+                if (e->getComponent<CAnimation>().getAnimation()->getName() == "Brick")
+                {
+                    // destroy brick
+                    e->kill();
+                    
+                    // spawn explosion at same position
+                    auto explosion = manager->addEntity("Dec");
+                    explosion->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation("Explosion"));
+                    auto& t = explosion->addComponent<CTransform>();
+                    t.pos.x = eTrans.pos.x;
+                    t.pos.y = eTrans.pos.y;
+                }
+                
+                if (e->getComponent<CAnimation>().getAnimation()->getName() == "Question")
+                {
+                    // question becomes block
+                    e->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation("Block"));
+                    
+                    // spawn coin above
+                    auto coin = manager->addEntity("Dec");
+                    coin->addComponent<CAnimation>(&this->engine->getAssets()->getAnimation("Coin"));
+                    auto& t = coin->addComponent<CTransform>();
+                    t.pos.x = eTrans.pos.x;
+                    t.pos.y = eTrans.pos.y - 64 - 4;
+                }
             }
         }
         
@@ -426,6 +480,24 @@ void ScenePlay::sCollision()
                     auto& t = e->addComponent<CTransform>();
                     t.pos.x = eTrans.pos.x;
                     t.pos.y = eTrans.pos.y;
+                }
+            }
+        }
+        
+        if (e->isAlive() && e->getComponent<CAnimation>().getAnimation()->getName() == "CollectibleCoin")
+        {
+            for (auto e2 : this->manager->getEntities("Tile"))
+            {
+                if (e == e2 || e2->getComponent<CAnimation>().getAnimation()->getName() == "CollectibleCoin")
+                    continue;
+                
+                cVec.x = 0;
+                cVec.y = 0;
+                
+                if (checkCollision(e, e2, cVec))
+                {
+                    e->getComponent<CTransform>().pos += cVec;
+                    e->getComponent<CTransform>().speed.y = 0;
                 }
             }
         }
@@ -475,6 +547,9 @@ void ScenePlay::sRender()
 
     for (auto e : this->manager->getEntities())
     {
+        if (e->isAlive() == false)
+            continue;
+        
         auto& spr = e->getComponent<CAnimation>().getAnimation()->getSprite();
         auto& t = e->getComponent<CTransform>();
 
